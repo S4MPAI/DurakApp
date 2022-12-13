@@ -1,0 +1,115 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Images\back-black.png" />
+    <None Remove="Images\card-base.png" />
+    <None Remove="Images\Clubs_10.png" />
+    <None Remove="Images\Clubs_11.png" />
+    <None Remove="Images\Clubs_12.png" />
+    <None Remove="Images\Clubs_13.png" />
+    <None Remove="Images\Clubs_14.png" />
+    <None Remove="Images\Clubs_6.png" />
+    <None Remove="Images\Clubs_7.png" />
+    <None Remove="Images\Clubs_8.png" />
+    <None Remove="Images\Clubs_9.png" />
+    <None Remove="Images\Diamonds_10.png" />
+    <None Remove="Images\Diamonds_11.png" />
+    <None Remove="Images\Diamonds_12.png" />
+    <None Remove="Images\Diamonds_13.png" />
+    <None Remove="Images\Diamonds_14.png" />
+    <None Remove="Images\Diamonds_6.png" />
+    <None Remove="Images\Diamonds_7.png" />
+    <None Remove="Images\Diamonds_8.png" />
+    <None Remove="Images\Diamonds_9.png" />
+    <None Remove="Images\Hearts_10.png" />
+    <None Remove="Images\Hearts_11.png" />
+    <None Remove="Images\Hearts_12.png" />
+    <None Remove="Images\Hearts_13.png" />
+    <None Remove="Images\Hearts_14.png" />
+    <None Remove="Images\Hearts_6.png" />
+    <None Remove="Images\Hearts_7.png" />
+    <None Remove="Images\Hearts_8.png" />
+    <None Remove="Images\Hearts_9.png" />
+    <None Remove="Images\Spades_10.png" />
+    <None Remove="Images\Spades_11.png" />
+    <None Remove="Images\Spades_12.png" />
+    <None Remove="Images\Spades_13.png" />
+    <None Remove="Images\Spades_14.png" />
+    <None Remove="Images\Spades_6.png" />
+    <None Remove="Images\Spades_7.png" />
+    <None Remove="Images\Spades_8.png" />
+    <None Remove="Images\Spades_9.png" />
+    <None Remove="Images\suit-Clubs.png" />
+    <None Remove="Images\suit-Diamonds.png" />
+    <None Remove="Images\suit-Hearts.png" />
+    <None Remove="Images\suit-Spades.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Images\back-black.png" />
+    <Resource Include="Images\card-base.png" />
+    <Resource Include="Images\Clubs_10.png" />
+    <Resource Include="Images\Clubs_11.png" />
+    <Resource Include="Images\Clubs_12.png" />
+    <Resource Include="Images\Clubs_13.png" />
+    <Resource Include="Images\Clubs_14.png" />
+    <Resource Include="Images\Clubs_6.png" />
+    <Resource Include="Images\Clubs_7.png" />
+    <Resource Include="Images\Clubs_8.png" />
+    <Resource Include="Images\Clubs_9.png" />
+    <Resource Include="Images\Diamonds_10.png" />
+    <Resource Include="Images\Diamonds_11.png" />
+    <Resource Include="Images\Diamonds_12.png" />
+    <Resource Include="Images\Diamonds_13.png" />
+    <Resource Include="Images\Diamonds_14.png" />
+    <Resource Include="Images\Diamonds_6.png" />
+    <Resource Include="Images\Diamonds_7.png" />
+    <Resource Include="Images\Diamonds_8.png" />
+    <Resource Include="Images\Diamonds_9.png" />
+    <Resource Include="Images\Hearts_10.png" />
+    <Resource Include="Images\Hearts_11.png" />
+    <Resource Include="Images\Hearts_12.png" />
+    <Resource Include="Images\Hearts_13.png" />
+    <Resource Include="Images\Hearts_14.png" />
+    <Resource Include="Images\Hearts_6.png" />
+    <Resource Include="Images\Hearts_7.png" />
+    <Resource Include="Images\Hearts_8.png" />
+    <Resource Include="Images\Hearts_9.png" />
+    <Resource Include="Images\Spades_10.png" />
+    <Resource Include="Images\Spades_11.png" />
+    <Resource Include="Images\Spades_12.png" />
+    <Resource Include="Images\Spades_13.png" />
+    <Resource Include="Images\Spades_14.png" />
+    <Resource Include="Images\Spades_6.png" />
+    <Resource Include="Images\Spades_7.png" />
+    <Resource Include="Images\Spades_8.png" />
+    <Resource Include="Images\Spades_9.png" />
+    <Resource Include="Images\suit-Clubs.png" />
+    <Resource Include="Images\suit-Diamonds.png" />
+    <Resource Include="Images\suit-Hearts.png" />
+    <Resource Include="Images\suit-Spades.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>
