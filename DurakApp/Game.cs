@@ -127,7 +127,7 @@ namespace Durak
             MoveBot();
         }
 
-        public void MoveBot()
+        private void MoveBot()
         {
             if (AttackPlayer == Player.Bot)
                 AttackBot();
@@ -138,12 +138,26 @@ namespace Durak
 
         }
 
+        private void MoveHuman(int numberCardInHand)
+        {
+            var card = humanCards[numberCardInHand];
+
+            var isCardCanPlay = (AttackPlayer == Player.Human) ? card.IsCardCanAttack(this) : card.IsCardCanDefense(this);
+            if (isCardCanPlay)
+            {
+                humanCards.RemoveAt(numberCardInHand);
+                playingTable.AddCard(Player.Human, card);
+            }
+            else
+                throw new Exception("Нельзя разыграть карту");
+        }
+
         private void DefenseBot()
         {
             var humanCard = GetPlayerCardsOnTable(Player.Human)[^1];
 
             if (IsPlayerHaveDefense(Player.Bot, humanCard) &&
-                (GetPlayerCardsOnTable(Player.Human).Count - GetPlayerCardsOnTable(Player.Bot).Count) <= 1)
+                (GetCardDifferenceOnTable() <= 1))
             {
                 var card = botCards.Where(x => x.Rate > humanCard.Rate && x.Suit == humanCard.Suit).OrderBy(x => x.Rate).FirstOrDefault();
 
@@ -166,21 +180,6 @@ namespace Durak
 
             playingTable.AddCard(Player.Bot, card);
             botCards.Remove(card);
-    }
-
-
-        public void MoveHuman(int numberCardInHand)
-        {
-            var card = humanCards[numberCardInHand];
-
-            var isCardCanPlay = (AttackPlayer == Player.Human) ? card.IsCardCanAttack(this) : card.IsCardCanDefense(this);
-            if (isCardCanPlay)
-            {
-                humanCards.RemoveAt(numberCardInHand);
-                playingTable.AddCard(Player.Human, card);
-            }
-            else
-                throw new Exception("Нельзя разыграть карту");
         }
 
         public List<Card> GetPlayerCardsOnTable(Player player) => playingTable.GetPlayerCards(player);
@@ -202,7 +201,7 @@ namespace Durak
 
         public void MakeCardReset()
         {
-            if (GetPlayerCardsOnTable(Player.Human).Count != GetPlayerCardsOnTable(Player.Bot).Count)
+            if (GetCardDifferenceOnTable() != 0)
             {
                 var defensePlayerCards = (AttackPlayer == Player.Bot) ? humanCards : botCards;
 
