@@ -28,8 +28,14 @@ namespace DurakApp
         {
             durakGame = new DurakGame();
             InitializeComponent();
- 
-            durakGame.StartGame();
+            UpdateForm();
+        }
+
+        private void UpdateForm()
+        {
+            PlayingTable.Children.Clear();
+            PlayerCards.Children.Clear();
+
             UpdatePlayerCardsImage();
             SetTrumpSuitImage();
 
@@ -109,7 +115,8 @@ namespace DurakApp
 
         private void RestartButton_Click(object sender, RoutedEventArgs e)
         {
-
+            durakGame.StartGame();
+            UpdateForm();
         }
 
         private void Image_MouseEnter(object sender, MouseEventArgs e)

@@ -67,7 +67,7 @@ namespace Durak
 
         private PlayingTable playingTable = new PlayingTable();
 
-        private List<Card> humanCards = new List<Card>();
+        private List<Card> humanCards;
         public List<Card> HumanCards { get => new(humanCards); }
 
         private List<Card> botCards = new List<Card>();
@@ -75,18 +75,20 @@ namespace Durak
 
         public Suit Trump { get; private set; }
 
-        private Stage stage = Stage.None;
-
         public Player AttackPlayer { get; private set; } = Player.Human;
+
+        public DurakGame()
+        {
+            StartGame();
+        }
 
         public void StartGame()
         {
-            if (stage == Stage.Playing)
-                throw new Exception();
+            humanCards = new List<Card>();
+
+            botCards = new List<Card>();
 
             deckOfCards = CreateDeckOfCards();
-
-            stage = Stage.Playing;
 
             deckOfCards = RandomCards();
 
