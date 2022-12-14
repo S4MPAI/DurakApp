@@ -7,8 +7,6 @@ using System.Windows.Controls.Primitives;
 
 namespace Durak
 {
-    
-
     public class Card
     {
         public readonly int Rate;
@@ -19,26 +17,6 @@ namespace Durak
         {
             Rate = (int)rate;
             Suit = suit;
-        }
-
-        public bool IsCardCanAttack(DurakGame durakGame)
-        {
-            var cardsOnTable = durakGame.GetAllCardsOnTable();
-
-            return cardsOnTable.Count == 0 || cardsOnTable.Any(x => x.Rate == Rate);
-        }
-
-        public bool IsCardCanDefense(DurakGame durakGame)
-        {
-            if (durakGame.GetCardDifferenceOnTable() == 0) return false;
-
-            var enemyCardsOnTable = durakGame.GetPlayerCardsOnTable(durakGame.AttackPlayer);
-
-            if (enemyCardsOnTable.Count == 0) return true;
-            var lastEnemyCard = enemyCardsOnTable[^1];
-
-            return ((Rate > lastEnemyCard.Rate && Suit == lastEnemyCard.Suit) ||
-                    (Suit == durakGame.Trump && lastEnemyCard.Suit != durakGame.Trump));
         }
     }
 
@@ -52,7 +30,7 @@ namespace Durak
         public List<Card> GetPlayerCards(Player player)
         {
             if (player == Player.Bot)
-                return new(botCardsOnTable);
+                return botCardsOnTable;
 
             return new(humanCardsOnTable);
         }
@@ -99,18 +77,14 @@ namespace Durak
 
         private Stage stage = Stage.None;
 
-        public Player AttackPlayer { get; private set; }
-
-        public DurakGame()
-        {
-            deckOfCards = CreateDeckOfCards();
-            AttackPlayer = Player.Human;
-        }
+        public Player AttackPlayer { get; private set; } = Player.Human;
 
         public void StartGame()
         {
             if (stage == Stage.Playing)
                 throw new Exception();
+
+            deckOfCards = CreateDeckOfCards();
 
             stage = Stage.Playing;
 
@@ -127,14 +101,37 @@ namespace Durak
             MoveBot();
         }
 
+        public bool IsCardCanAttack(Card card)
+        {
+            var cardsOnTable = GetAllCardsOnTable();
+
+
+            return humanCards.Count != 0 &&
+                   botCards.Count != 0 &&
+                   GetPlayerCardsOnTable(Player.Human).Count < 6 &&
+                   GetPlayerCardsOnTable(Player.Bot).Count < 6 &&
+                   (cardsOnTable.Count == 0 || cardsOnTable.Any(x => x.Rate == card.Rate));
+        }
+
+        public bool IsCardCanDefense(Card card)
+        {
+            if (GetCardDifferenceOnTable() == 0) return false;
+
+            var enemyCardsOnTable = GetPlayerCardsOnTable(AttackPlayer);
+
+            if (enemyCardsOnTable.Count == 0) return true;
+            var lastEnemyCard = enemyCardsOnTable[^1];
+
+            return ((card.Rate > lastEnemyCard.Rate && card.Suit == lastEnemyCard.Suit) ||
+                    (card.Suit == Trump && lastEnemyCard.Suit != Trump));
+        }
+
         private void MoveBot()
         {
             if (AttackPlayer == Player.Bot)
                 AttackBot();
             else
-            {
                 DefenseBot();
-            }
 
         }
 
@@ -142,7 +139,7 @@ namespace Durak
         {
             var card = humanCards[numberCardInHand];
 
-            var isCardCanPlay = (AttackPlayer == Player.Human) ? card.IsCardCanAttack(this) : card.IsCardCanDefense(this);
+            var isCardCanPlay = (AttackPlayer == Player.Human) ? IsCardCanAttack(card) : IsCardCanDefense(card);
             if (isCardCanPlay)
             {
                 humanCards.RemoveAt(numberCardInHand);
@@ -204,17 +201,17 @@ namespace Durak
             if (GetCardDifferenceOnTable() != 0)
             {
                 var defensePlayerCards = (AttackPlayer == Player.Bot) ? humanCards : botCards;
-
                 var allCardsOnTable = playingTable.ClearAndGetAllCards();
+                
                 defensePlayerCards.AddRange(allCardsOnTable);
+                TryDialCardsToSix();
             }
             else
             {
+                TryDialCardsToSix();
                 playingTable.Clear();
                 AttackPlayer = (AttackPlayer == Player.Bot) ? Player.Human : Player.Bot;
             }
-
-            TryDialCardsToSix();
 
             if (AttackPlayer == Player.Bot)
                 MoveBot();
@@ -240,29 +237,27 @@ namespace Durak
 
         private void TryDialCardsToSix()
         {
-            var hands = new List<List<Card>>();
-
             if (AttackPlayer == Player.Bot)
             {
-                hands.Add(botCards);
-                hands.Add(humanCards);
+                DialCards(botCards);
+                DialCards(humanCards);
             }
             else
             {
-                hands.Add(humanCards);
-                hands.Add(botCards);
+                DialCards(humanCards);
+                DialCards(botCards);
             }
+        }
 
-            foreach (var cards in hands)
+        private void DialCards(List<Card> cards)
+        {
+            for (int i = cards.Count; i < 6; i++)
             {
-                for (int i = cards.Count; i < 6; i++)
-                {
-                    if (deckOfCards.Count == 0)
-                        break;
+                if (deckOfCards.Count == 0)
+                    break;
 
-                    var card = deckOfCards.Dequeue();
-                    cards.Add(card);
-                }
+                var card = deckOfCards.Dequeue();
+                cards.Add(card);
             }
         }
 

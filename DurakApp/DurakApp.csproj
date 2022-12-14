@@ -37,6 +37,8 @@
     <None Remove="Images\Hearts_7.png" />
     <None Remove="Images\Hearts_8.png" />
     <None Remove="Images\Hearts_9.png" />
+    <None Remove="Images\papich-smash.gif" />
+    <None Remove="Images\ret_pepega.gif" />
     <None Remove="Images\Spades_10.png" />
     <None Remove="Images\Spades_11.png" />
     <None Remove="Images\Spades_12.png" />
@@ -82,6 +84,8 @@
     <Resource Include="Images\Hearts_7.png" />
     <Resource Include="Images\Hearts_8.png" />
     <Resource Include="Images\Hearts_9.png" />
+    <Resource Include="Images\papich-smash.gif" />
+    <Resource Include="Images\ret_pepega.gif" />
     <Resource Include="Images\Spades_10.png" />
     <Resource Include="Images\Spades_11.png" />
     <Resource Include="Images\Spades_12.png" />

@@ -353,6 +353,26 @@ namespace DurakApp.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Byte[].
         /// </summary>
+        internal static byte[] papich_smash {
+            get {
+                object obj = ResourceManager.GetObject("papich-smash", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Byte[].
+        /// </summary>
+        internal static byte[] ret_pepega {
+            get {
+                object obj = ResourceManager.GetObject("ret_pepega", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Byte[].
+        /// </summary>
         internal static byte[] Spades_10 {
             get {
                 object obj = ResourceManager.GetObject("Spades_10", resourceCulture);

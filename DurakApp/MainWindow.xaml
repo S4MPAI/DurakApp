@@ -67,7 +67,7 @@
         </GroupBox>
 
         <Image x:Name="EnemyCard" Grid.Column="6" HorizontalAlignment="Center" Height="144" Grid.RowSpan="3" VerticalAlignment="Center" Width="102" Source="Images/back-black.png"/>
-        <Label Grid.Column="7" Content="36 карт у соперника" HorizontalAlignment="Center" Grid.Row="2" Grid.ColumnSpan="2" VerticalAlignment="Top" FontSize="20"/>
+        <Label x:Name="BotCards" Grid.Column="7" Content="36 карт у соперника" HorizontalAlignment="Center" Grid.Row="2" Grid.ColumnSpan="2" VerticalAlignment="Top" FontSize="20"/>
 
         <GroupBox x:Name="PlayingTableBox" Grid.Column="4" Header="Игральный стол" Grid.Row="3" Grid.ColumnSpan="4" Grid.RowSpan="3" Margin="10,0,0,0" FontSize="14" Background="#FF443939" Foreground="#FFD5DFE5">
             <Grid x:Name="PlayingTable">
