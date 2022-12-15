@@ -6,14 +6,6 @@ using System.Threading.Tasks;
 
 namespace Durak
 {
-    //public enum Stage
-    //{
-    //    None,
-    //    Playing,
-    //    BotWin,
-    //    PlayerWin
-    //}
-
     public enum PlayerType
     {
         Human,
