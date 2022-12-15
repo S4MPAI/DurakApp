@@ -30,7 +30,7 @@ namespace Durak
             if (isCardCanPlay)
             {
                 cards.RemoveAt(numberCardInHand);
-                playingTable.AddCard(this, card);
+                playingTable.AddCard(Type, card);
             }
         }
         
@@ -53,7 +53,7 @@ namespace Durak
         {
             if (playingTable.CardDifference == 0) return false;
 
-            var enemyCardsOnTable = playingTable.GetPlayerCards(opponent);
+            var enemyCardsOnTable = playingTable.GetPlayerCards(opponent.Type);
 
             if (enemyCardsOnTable.Count == 0) return true;
 
@@ -70,8 +70,8 @@ namespace Durak
 
             return cards.Count != 0 &&
                    opponent.cards.Count != 0 &&
-                   playingTable.GetPlayerCards(this).Count < 6 &&
-                   playingTable.GetPlayerCards(opponent).Count < 6 &&
+                   playingTable.GetPlayerCards(Type).Count < 6 &&
+                   playingTable.GetPlayerCards(opponent.Type).Count < 6 &&
                    (cardsOnTable.Count == 0 || cardsOnTable.Any(x => x.Rate == card.Rate));
         }
     }

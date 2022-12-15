@@ -5,13 +5,71 @@ using System.Linq;
 
 namespace Durak
 {
+    public class Card
+    {
+        public readonly int Rate;
+
+        public readonly Suit Suit;
+
+        public Card(CardRate rate, Suit suit)
+        {
+            Rate = (int)rate;
+            Suit = suit;
+        }
+    }
+
+    public class PlayingTable
+    {
+        public int CardDifference { get => Math.Abs(botCardsOnTable.Count - humanCardsOnTable.Count); } 
+
+        private List<Card> botCardsOnTable = new List<Card>();
+        private List<Card> humanCardsOnTable = new List<Card>();
+
+        public Suit Trump { get; internal set; }
+
+        public List<Card> GetPlayerCards(PlayerType player)
+        {
+            if (player == PlayerType.Bot)
+                return new(botCardsOnTable);
+
+            return new(humanCardsOnTable);
+        }
+
+        public int GetPlayerCardsCount(PlayerType player) => (player == PlayerType.Bot) ? botCardsOnTable.Count : humanCardsOnTable.Count;
+
+        public void AddCard(PlayerType player,Card card)
+        {
+            if (player == PlayerType.Bot)
+                botCardsOnTable.Add(card);
+            else
+                humanCardsOnTable.Add(card);
+        }
+
+        public void Clear()
+        {
+            botCardsOnTable.Clear();
+            humanCardsOnTable.Clear();
+        }
+
+        public List<Card> ClearAndGetAllCards()
+        {
+            var cards = GetAllCards();
+
+            Clear();
+
+            return cards;
+        }
+
+        public List<Card> GetAllCards() => botCardsOnTable.Concat(humanCardsOnTable).ToList();
+    }
+
     public class DurakGame
     {
         public Suit Trump { get => playingTable.Trump; }
 
         private Queue<Card> deckOfCards;
 
-        public PlayingTable playingTable;
+        public PlayingTable playingTable = new PlayingTable();
 
         public Player human;
 
@@ -21,8 +79,6 @@ namespace Durak
         {
             human = new Player( PlayerStatus.Attack, PlayerType.Human);
             bot = new Player(PlayerStatus.Defense, PlayerType.Bot);
-
-            playingTable = new PlayingTable(human, bot);
 
             StartGame();
         }
@@ -54,7 +110,7 @@ namespace Durak
 
         
 
-        public List<Card> GetPlayerCardsOnTable(Player player) => playingTable.GetPlayerCards(player);
+        public List<Card> GetPlayerCardsOnTable(PlayerType player) => playingTable.GetPlayerCards(player);
 
         public List<Card> GetAllCardsOnTable() => playingTable.GetAllCards();
 
@@ -101,25 +157,20 @@ namespace Durak
 
         private Card GenerateDefenseCard(Player player)
         {
-            var enemyCard = GetPlayerCardsOnTable(GetEnemy(player))[^1];
+            var enemyCard = GetPlayerCardsOnTable(PlayerType.Human)[^1];
 
-            if (IsPlayerHaveDefense(player, enemyCard) &&
+            if (IsPlayerHaveDefense(bot, enemyCard) &&
                 (GetCardDifferenceOnTable() <= 1))
             {
-                var card = player.cards.Where(x => x.Rate > enemyCard.Rate && x.Suit == enemyCard.Suit).OrderBy(x => x.Rate).FirstOrDefault();
+                var card = bot.cards.Where(x => x.Rate > enemyCard.Rate && x.Suit == enemyCard.Suit).OrderBy(x => x.Rate).FirstOrDefault();
 
                 if (card == null)
-                    card = player.cards.Where(x => x.Suit == Trump && enemyCard.Suit != Trump).OrderBy(x => x.Rate).FirstOrDefault();
+                    card = bot.cards.Where(x => x.Suit == Trump && enemyCard.Suit != Trump).OrderBy(x => x.Rate).FirstOrDefault();
 
                 return card;
             }
 
             return null;
-        }
-
-        public Player GetEnemy(Player player)
-        {
-            return (player == human) ? bot : human;
         }
 
         private Card GenerateAttackCard(Player player)

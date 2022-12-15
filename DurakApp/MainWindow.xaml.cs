@@ -83,7 +83,6 @@ namespace DurakApp
                 image.MouseLeftButtonUp += Image_MouseLeftButtonUp;
 
                 PlayerCards.Children.Add(image);
-
                 Grid.SetColumn(image, i);
             }
         }
@@ -163,7 +162,7 @@ namespace DurakApp
             PlayingTable.Children.Add(image);
 
             Grid.SetRow(image, 1);
-            Grid.SetColumn(image, durakGame.GetPlayerCardsOnTable(durakGame.human).Count);
+            Grid.SetColumn(image, durakGame.GetPlayerCardsOnTable(PlayerType.Human).Count);
 
             image.MouseEnter -= Image_MouseEnter;
             image.MouseLeave -= Image_MouseLeave;
@@ -178,7 +177,7 @@ namespace DurakApp
         private void ResetBotPlayingTable()
         {
             BotCards.Content = $"{durakGame.bot.cards.Count} карт у соперника";
-            var botTableCards = durakGame.GetPlayerCardsOnTable(durakGame.bot);
+            var botTableCards = durakGame.GetPlayerCardsOnTable(PlayerType.Bot);
 
             for (int i = 0; i < botTableCards.Count; i++)
             {
