@@ -11,7 +11,7 @@ namespace Durak
 
         private Queue<Card> deckOfCards;
 
-        public PlayingTable playingTable = new PlayingTable();
+        public PlayingTable playingTable;
 
         public Player human;
 
@@ -21,6 +21,8 @@ namespace Durak
         {
             human = new Player( PlayerStatus.Attack, PlayerType.Human);
             bot = new Player(PlayerStatus.Defense, PlayerType.Bot);
+
+            playingTable = new PlayingTable(human, bot);
 
             StartGame();
         }
@@ -52,7 +54,7 @@ namespace Durak
 
         
 
-        public List<Card> GetPlayerCardsOnTable(PlayerType player) => playingTable.GetPlayerCards(player);
+        public List<Card> GetPlayerCardsOnTable(Player player) => playingTable.GetPlayerCards(player);
 
         public List<Card> GetAllCardsOnTable() => playingTable.GetAllCards();
 
@@ -99,10 +101,9 @@ namespace Durak
 
         private Card GenerateDefenseCard(Player player)
         {
-            var enemyCard = GetPlayerCardsOnTable(PlayerType.Human)[^1];
+            var enemyCard = GetPlayerCardsOnTable(GetEnemy(player))[^1];
 
-            if (IsPlayerHaveDefense(bot, enemyCard) &&
-                (GetCardDifferenceOnTable() <= 1))
+            if (GetCardDifferenceOnTable() <= 1)
             {
                 var card = bot.cards.Where(x => x.Rate > enemyCard.Rate && x.Suit == enemyCard.Suit).OrderBy(x => x.Rate).FirstOrDefault();
 
@@ -113,6 +114,11 @@ namespace Durak
             }
 
             return null;
+        }
+
+        private Player GetEnemy(Player player)
+        {
+            return (player == human) ? bot : human;
         }
 
         private Card GenerateAttackCard(Player player)
@@ -128,20 +134,7 @@ namespace Durak
         private PlayerStatus ChangeStatus(Player player)
         {
             return (player.Status == PlayerStatus.Attack) ? PlayerStatus.Defense : PlayerStatus.Attack;
-        }
-
-        private bool IsPlayerHaveAttack(Player player)
-        {
-            var playingTableCards = playingTable.GetAllCards();
-
-            return player.cards.Any(x => playingTableCards.Any(y => x.Rate == y.Rate));
-        }
-
-        private bool IsPlayerHaveDefense(Player player, Card enemyCard)
-        {
-            return player.cards.Any(x => (x.Rate > enemyCard.Rate && x.Suit == enemyCard.Suit) ||
-                                        (x.Suit == Trump && enemyCard.Suit != Trump));
-        }        
+        }     
 
         private Suit GetTrumpSuit()
         {

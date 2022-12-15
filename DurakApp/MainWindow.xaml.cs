@@ -21,8 +21,8 @@ namespace DurakApp
     /// </summary>
     public partial class MainWindow : Window
     {
-        DurakGame durakGame;
-        Window endingScreen;
+        private DurakGame durakGame;
+        private Window endingScreen;
 
         public MainWindow()
         {
@@ -115,6 +115,7 @@ namespace DurakApp
 
         private void RestartButton_Click(object sender, RoutedEventArgs e)
         {
+            if (durakGame.GetAllCardsOnTable().Count == 0) return;
             durakGame.StartGame();
             UpdateForm();
         }
@@ -162,7 +163,7 @@ namespace DurakApp
             PlayingTable.Children.Add(image);
 
             Grid.SetRow(image, 1);
-            Grid.SetColumn(image, durakGame.GetPlayerCardsOnTable(PlayerType.Human).Count);
+            Grid.SetColumn(image, durakGame.GetPlayerCardsOnTable(durakGame.human).Count);
 
             image.MouseEnter -= Image_MouseEnter;
             image.MouseLeave -= Image_MouseLeave;
@@ -177,7 +178,7 @@ namespace DurakApp
         private void ResetBotPlayingTable()
         {
             BotCards.Content = $"{durakGame.bot.cards.Count} карт у соперника";
-            var botTableCards = durakGame.GetPlayerCardsOnTable(PlayerType.Bot);
+            var botTableCards = durakGame.GetPlayerCardsOnTable(durakGame.bot);
 
             for (int i = 0; i < botTableCards.Count; i++)
             {

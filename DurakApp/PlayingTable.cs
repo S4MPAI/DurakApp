@@ -8,35 +8,43 @@ namespace Durak
 {
     public class PlayingTable
     {
-        public int CardDifference { get => Math.Abs(botCardsOnTable.Count - humanCardsOnTable.Count); }
+        public int CardDifference { get => Math.Abs(playersCards[firstPlayer].Count - playersCards[secondPlayer].Count); }
 
-        private List<Card> botCardsOnTable = new List<Card>();
-        private List<Card> humanCardsOnTable = new List<Card>();
+        private Dictionary<Player, List<Card>> playersCards;
+
+        private Player firstPlayer;
+
+        private Player secondPlayer;
 
         public Suit Trump { get; internal set; }
 
-        public List<Card> GetPlayerCards(PlayerType player)
+        public PlayingTable(Player player, Player player1)
         {
-            if (player == PlayerType.Bot)
-                return new(botCardsOnTable);
+            playersCards = new Dictionary<Player, List<Card>>();
 
-            return new(humanCardsOnTable);
+            playersCards[player] = new List<Card>();
+            playersCards[player1] = new List<Card>();
+
+            firstPlayer = player;
+            secondPlayer = player1;
         }
 
-        public int GetPlayerCardsCount(PlayerType player) => (player == PlayerType.Bot) ? botCardsOnTable.Count : humanCardsOnTable.Count;
-
-        public void AddCard(PlayerType player, Card card)
+        public List<Card> GetPlayerCards(Player player)
         {
-            if (player == PlayerType.Bot)
-                botCardsOnTable.Add(card);
-            else
-                humanCardsOnTable.Add(card);
+            return new List<Card>(playersCards[player]);
+        }
+
+        public int GetPlayerCardsCount(Player player) => playersCards[player].Count;
+
+        public void AddCard(Player player, Card card)
+        {
+            playersCards[player].Add(card);
         }
 
         public void Clear()
         {
-            botCardsOnTable.Clear();
-            humanCardsOnTable.Clear();
+            playersCards[firstPlayer].Clear();
+            playersCards[secondPlayer].Clear();
         }
 
         public List<Card> ClearAndGetAllCards()
@@ -48,6 +56,6 @@ namespace Durak
             return cards;
         }
 
-        public List<Card> GetAllCards() => botCardsOnTable.Concat(humanCardsOnTable).ToList();
+        public List<Card> GetAllCards() => playersCards[firstPlayer].Concat(playersCards[secondPlayer]).ToList();
     }
 }
