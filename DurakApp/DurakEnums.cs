@@ -14,10 +14,16 @@ namespace Durak
     //    PlayerWin
     //}
 
-    public enum Player
+    public enum PlayerType
     {
         Human,
         Bot
+    }
+
+    public enum PlayerStatus
+    {
+        Attack,
+        Defense,
     }
 
     public enum Suit

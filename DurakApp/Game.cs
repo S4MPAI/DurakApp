@@ -1,9 +1,7 @@
-﻿using System;
+﻿using DurakApp;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls.Primitives;
 
 namespace Durak
 {
@@ -27,17 +25,21 @@ namespace Durak
         private List<Card> botCardsOnTable = new List<Card>();
         private List<Card> humanCardsOnTable = new List<Card>();
 
-        public List<Card> GetPlayerCards(Player player)
+        public Suit Trump { get; internal set; }
+
+        public List<Card> GetPlayerCards(PlayerType player)
         {
-            if (player == Player.Bot)
-                return botCardsOnTable;
+            if (player == PlayerType.Bot)
+                return new(botCardsOnTable);
 
             return new(humanCardsOnTable);
         }
 
-        public void AddCard(Player player,Card card)
+        public int GetPlayerCardsCount(PlayerType player) => (player == PlayerType.Bot) ? botCardsOnTable.Count : humanCardsOnTable.Count;
+
+        public void AddCard(PlayerType player,Card card)
         {
-            if (player == Player.Bot)
+            if (player == PlayerType.Bot)
                 botCardsOnTable.Add(card);
             else
                 humanCardsOnTable.Add(card);
@@ -63,30 +65,28 @@ namespace Durak
 
     public class DurakGame
     {
+        public Suit Trump { get => playingTable.Trump; }
+
         private Queue<Card> deckOfCards;
 
-        private PlayingTable playingTable = new PlayingTable();
+        public PlayingTable playingTable = new PlayingTable();
 
-        private List<Card> humanCards;
-        public List<Card> HumanCards { get => new(humanCards); }
+        public Player human;
 
-        private List<Card> botCards = new List<Card>();
-        public List<Card> BotCards { get => new(botCards); }
-
-        public Suit Trump { get; private set; }
-
-        public Player AttackPlayer { get; private set; } = Player.Human;
+        public Player bot;
 
         public DurakGame()
         {
+            human = new Player( PlayerStatus.Attack, PlayerType.Human);
+            bot = new Player(PlayerStatus.Defense, PlayerType.Bot);
+
             StartGame();
         }
 
         public void StartGame()
         {
-            humanCards = new List<Card>();
-
-            botCards = new List<Card>();
+            human.cards.Clear();
+            bot.cards.Clear();
 
             deckOfCards = CreateDeckOfCards();
 
@@ -94,94 +94,23 @@ namespace Durak
 
             TryDialCardsToSix();
 
-            Trump = GetTrumpSuit();
+            playingTable.Trump = GetTrumpSuit();
         }
+
+        
 
         public void DoOneMoveOfPlayers(int numberCardInHand)
         {
-            MoveHuman(numberCardInHand);
-            MoveBot();
+            human.ThrowCard(numberCardInHand, bot, playingTable);
+
+            var card = GenerateCard(bot);
+            if (card != null)
+                bot.ThrowCard(card, human, playingTable);
         }
 
-        public bool IsCardCanAttack(Card card)
-        {
-            var cardsOnTable = GetAllCardsOnTable();
+        
 
-
-            return humanCards.Count != 0 &&
-                   botCards.Count != 0 &&
-                   GetPlayerCardsOnTable(Player.Human).Count < 6 &&
-                   GetPlayerCardsOnTable(Player.Bot).Count < 6 &&
-                   (cardsOnTable.Count == 0 || cardsOnTable.Any(x => x.Rate == card.Rate));
-        }
-
-        public bool IsCardCanDefense(Card card)
-        {
-            if (GetCardDifferenceOnTable() == 0) return false;
-
-            var enemyCardsOnTable = GetPlayerCardsOnTable(AttackPlayer);
-
-            if (enemyCardsOnTable.Count == 0) return true;
-            var lastEnemyCard = enemyCardsOnTable[^1];
-
-            return ((card.Rate > lastEnemyCard.Rate && card.Suit == lastEnemyCard.Suit) ||
-                    (card.Suit == Trump && lastEnemyCard.Suit != Trump));
-        }
-
-        private void MoveBot()
-        {
-            if (AttackPlayer == Player.Bot)
-                AttackBot();
-            else
-                DefenseBot();
-
-        }
-
-        private void MoveHuman(int numberCardInHand)
-        {
-            var card = humanCards[numberCardInHand];
-
-            var isCardCanPlay = (AttackPlayer == Player.Human) ? IsCardCanAttack(card) : IsCardCanDefense(card);
-            if (isCardCanPlay)
-            {
-                humanCards.RemoveAt(numberCardInHand);
-                playingTable.AddCard(Player.Human, card);
-            }
-            else
-                throw new Exception("Нельзя разыграть карту");
-        }
-
-        private void DefenseBot()
-        {
-            var humanCard = GetPlayerCardsOnTable(Player.Human)[^1];
-
-            if (IsPlayerHaveDefense(Player.Bot, humanCard) &&
-                (GetCardDifferenceOnTable() <= 1))
-            {
-                var card = botCards.Where(x => x.Rate > humanCard.Rate && x.Suit == humanCard.Suit).OrderBy(x => x.Rate).FirstOrDefault();
-
-                if (card == null)
-                    card = botCards.Where(x => x.Suit == Trump && humanCard.Suit != Trump).OrderBy(x => x.Rate).FirstOrDefault();
-
-                playingTable.AddCard(Player.Bot, card);
-                botCards.Remove(card);
-            }
-        }
-
-        private void AttackBot()
-        {
-            var isPlayingTableHaveCards = GetAllCardsOnTable().Count == 0;
-            var playingTableCards = playingTable.GetAllCards();
-
-            var card = botCards.Where(x => isPlayingTableHaveCards || playingTableCards.Any(y => x.Rate == y.Rate)).OrderBy(x => x.Rate).FirstOrDefault();
-
-            if (card == null) return;
-
-            playingTable.AddCard(Player.Bot, card);
-            botCards.Remove(card);
-        }
-
-        public List<Card> GetPlayerCardsOnTable(Player player) => playingTable.GetPlayerCards(player);
+        public List<Card> GetPlayerCardsOnTable(PlayerType player) => playingTable.GetPlayerCards(player);
 
         public List<Card> GetAllCardsOnTable() => playingTable.GetAllCards();
 
@@ -189,20 +118,11 @@ namespace Durak
 
         public int GetCardDifferenceOnTable() => playingTable.CardDifference;
 
-        public bool IsPlayerHaveAttack(Player player)
-        {
-            var playerCards = (player == Player.Human) ? humanCards : botCards;
-
-            var playingTableCards = playingTable.GetAllCards();
-
-            return playerCards.Any(x => playingTableCards.Any(y => x.Rate == y.Rate));
-        }
-
         public void MakeCardReset()
         {
             if (GetCardDifferenceOnTable() != 0)
             {
-                var defensePlayerCards = (AttackPlayer == Player.Bot) ? humanCards : botCards;
+                var defensePlayerCards = (human.Status == PlayerStatus.Attack) ? bot.cards : human.cards;
                 var allCardsOnTable = playingTable.ClearAndGetAllCards();
                 
                 defensePlayerCards.AddRange(allCardsOnTable);
@@ -212,19 +132,73 @@ namespace Durak
             {
                 TryDialCardsToSix();
                 playingTable.Clear();
-                AttackPlayer = (AttackPlayer == Player.Bot) ? Player.Human : Player.Bot;
+                bot.Status = ChangeStatus(bot);
+                human.Status = ChangeStatus(human);
             }
 
-            if (AttackPlayer == Player.Bot)
-                MoveBot();
+            if (bot.Status == PlayerStatus.Attack)
+            {
+                var card = GenerateCard(bot);
+                bot.ThrowCard(card, bot, playingTable);
+            }
+        }
+
+        private Card GenerateCard(Player player)
+        {
+            Card card;
+
+            if (player.Status == PlayerStatus.Attack)
+                card = GenerateAttackCard(player);
+            else
+                card = GenerateDefenseCard(player);
+
+            return card;
+        }
+
+        private Card GenerateDefenseCard(Player player)
+        {
+            var enemyCard = GetPlayerCardsOnTable(PlayerType.Human)[^1];
+
+            if (IsPlayerHaveDefense(bot, enemyCard) &&
+                (GetCardDifferenceOnTable() <= 1))
+            {
+                var card = bot.cards.Where(x => x.Rate > enemyCard.Rate && x.Suit == enemyCard.Suit).OrderBy(x => x.Rate).FirstOrDefault();
+
+                if (card == null)
+                    card = bot.cards.Where(x => x.Suit == Trump && enemyCard.Suit != Trump).OrderBy(x => x.Rate).FirstOrDefault();
+
+                return card;
+            }
+
+            return null;
+        }
+
+        private Card GenerateAttackCard(Player player)
+        {
+            var isPlayingTableHaveCards = GetAllCardsOnTable().Count == 0;
+            var playingTableCards = playingTable.GetAllCards();
+
+            var card = player.cards.Where(x => isPlayingTableHaveCards || playingTableCards.Any(y => x.Rate == y.Rate)).OrderBy(x => x.Rate).FirstOrDefault();
+
+            return card;
+        }
+
+        private PlayerStatus ChangeStatus(Player player)
+        {
+            return (player.Status == PlayerStatus.Attack) ? PlayerStatus.Defense : PlayerStatus.Attack;
+        }
+
+        private bool IsPlayerHaveAttack(Player player)
+        {
+            var playingTableCards = playingTable.GetAllCards();
+
+            return player.cards.Any(x => playingTableCards.Any(y => x.Rate == y.Rate));
         }
 
         private bool IsPlayerHaveDefense(Player player, Card enemyCard)
         {
-            var playerCards = (player == Player.Human) ? humanCards : botCards;
-
-            return playerCards.Any(x => (x.Rate > enemyCard.Rate && x.Suit == enemyCard.Suit) ||
-                                (x.Suit == Trump && enemyCard.Suit != Trump));
+            return player.cards.Any(x => (x.Rate > enemyCard.Rate && x.Suit == enemyCard.Suit) ||
+                                        (x.Suit == Trump && enemyCard.Suit != Trump));
         }        
 
         private Suit GetTrumpSuit()
@@ -239,15 +213,15 @@ namespace Durak
 
         private void TryDialCardsToSix()
         {
-            if (AttackPlayer == Player.Bot)
+            if (bot.Status == PlayerStatus.Attack)
             {
-                DialCards(botCards);
-                DialCards(humanCards);
+                DialCards(bot.cards);
+                DialCards(human.cards);
             }
             else
             {
-                DialCards(humanCards);
-                DialCards(botCards);
+                DialCards(human.cards);
+                DialCards(bot.cards);
             }
         }
 

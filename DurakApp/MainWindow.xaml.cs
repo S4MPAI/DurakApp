@@ -41,7 +41,7 @@ namespace DurakApp
 
             var text = $"{durakGame.GetCardsInDeckCount()} карт";
             DeckCount.Content = text;
-            BotCards.Content = $"{durakGame.BotCards.Count} карт у соперника";
+            BotCards.Content = $"{durakGame.bot.cards.Count} карт у соперника";
         }
 
         private void SetTrumpSuitImage()
@@ -65,7 +65,7 @@ namespace DurakApp
         {
             PlayerCards.Children.Clear();
 
-            var playerCards = durakGame.HumanCards;
+            var playerCards = durakGame.human.cards;
 
             for (int i = 0; i < playerCards.Count; i++)
             {
@@ -93,12 +93,12 @@ namespace DurakApp
         {
             durakGame.MakeCardReset();
 
-            if (durakGame.HumanCards.Count == 0)
+            if (durakGame.human.cards.Count == 0)
             {
                 endingScreen = new GameWinWindow();
                 endingScreen.Show();
             }
-            else if (durakGame.BotCards.Count == 0)
+            else if (durakGame.bot.cards.Count == 0)
             {
                 endingScreen = new GameLoseWindow();
                 endingScreen.Show();
@@ -125,9 +125,9 @@ namespace DurakApp
 
             var cardNumberInHand = PlayerCards.Children.IndexOf(image);
 
-            var card = durakGame.HumanCards[cardNumberInHand];
+            var card = durakGame.human.cards[cardNumberInHand];
 
-            if (!IsCardCanPlays(card)) return;
+            if (!durakGame.human.IsCardCanPlays(card, durakGame.bot, durakGame.playingTable)) return;
 
             IncreaseImage(image);
         }
@@ -139,9 +139,9 @@ namespace DurakApp
 
             var cardNumberInHand = PlayerCards.Children.IndexOf(image);
 
-            var card = durakGame.HumanCards[cardNumberInHand];
+            var card = durakGame.human.cards[cardNumberInHand];
 
-            if (!IsCardCanPlays(card)) return;
+            if (!durakGame.human.IsCardCanPlays(card, durakGame.bot, durakGame.playingTable)) return;
 
             DecreaseImage(image);
         }
@@ -152,9 +152,9 @@ namespace DurakApp
 
             var cardNumberInHand = PlayerCards.Children.IndexOf(image);
 
-            var card = durakGame.HumanCards[cardNumberInHand];
+            var card = durakGame.human.cards[cardNumberInHand];
 
-            if (!IsCardCanPlays(card)) return;
+            if (!durakGame.human.IsCardCanPlays(card, durakGame.bot, durakGame.playingTable)) return;
 
             DecreaseImage(image);
 
@@ -162,7 +162,7 @@ namespace DurakApp
             PlayingTable.Children.Add(image);
 
             Grid.SetRow(image, 1);
-            Grid.SetColumn(image, durakGame.GetPlayerCardsOnTable(Player.Human).Count);
+            Grid.SetColumn(image, durakGame.GetPlayerCardsOnTable(PlayerType.Human).Count);
 
             image.MouseEnter -= Image_MouseEnter;
             image.MouseLeave -= Image_MouseLeave;
@@ -171,12 +171,13 @@ namespace DurakApp
             durakGame.DoOneMoveOfPlayers(cardNumberInHand);
 
             ResetBotPlayingTable();
+            UpdatePlayerCardsImage();
         }
 
         private void ResetBotPlayingTable()
         {
-            BotCards.Content = $"{durakGame.BotCards.Count} карт у соперника";
-            var botTableCards = durakGame.GetPlayerCardsOnTable(Player.Bot);
+            BotCards.Content = $"{durakGame.bot.cards.Count} карт у соперника";
+            var botTableCards = durakGame.GetPlayerCardsOnTable(PlayerType.Bot);
 
             for (int i = 0; i < botTableCards.Count; i++)
             {
@@ -196,9 +197,6 @@ namespace DurakApp
 
             }
         }
-
-        private bool IsCardCanPlays(Card card) => (durakGame.IsCardCanAttack(card) && durakGame.AttackPlayer == Player.Human) ||
-                                                  (durakGame.IsCardCanDefense(card) && durakGame.AttackPlayer == Player.Bot);
 
         private static void IncreaseImage(Image image)
         {
